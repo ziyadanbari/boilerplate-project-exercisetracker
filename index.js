@@ -35,20 +35,12 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
     return res.json({ error: "Fields missed" });
   const fetchedUser = await user.findById(_id);
   if (!fetchedUser) return res.json({ error: "user not found" });
-  const newExercise = await exercise.findOneAndUpdate(
-    {
-      user: new mongoose.Types.ObjectId(_id),
-    },
-    {
-      $push: {
-        exercises: {
-          description,
-          date: new Date(date || Date.now()),
-          duration: parseInt(duration),
-        },
-      },
-    }
-  );
+  const newExercise = await exercise.create({
+    user: new mongoose.Types.ObjectId(_id),
+    description,
+    date: new Date(date || Date.now()),
+    duration: parseInt(duration),
+  });
   return res.json({
     username: fetchedUser.username,
     _id: fetchedUser._id,
@@ -64,23 +56,24 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     const from = req.query.from || new Date(0);
     const to = req.query.to || new Date(Date.now());
     const limit = Number(req.query.limit) || 0;
+    const fetchedUser = await user.findById(_id);
     const userExercises = await exercise
-      .findOne({
+      .find({
         user: _id,
-        "exercises.date": { $gte: from, $lte: to },
+        date: { $gte: from, $lte: to },
       })
       .populate("user")
       .limit(limit);
     if (!userExercises) return res.json({ error: "user not found" });
-    const logs = userExercises.exercises.map((exercise) => {
+    const log = userExercises.map((exercise) => {
       const { duration, date, description } = exercise;
       return { duration, date: new Date(date).toDateString(), description };
     });
     return res.status(200).json({
-      count: userExercises.exercises.length,
+      count: userExercises.length,
       _id,
-      username: userExercises.user.username,
-      logs,
+      username: fetchedUser.username,
+      log,
     });
   } catch (err) {
     console.log(err);

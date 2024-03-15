@@ -5,23 +5,19 @@ const exerciseSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "users",
   },
-  exercises: [
-    new Schema({
-      description: {
-        type: String,
-        required: true,
-      },
-      duration: {
-        type: Number,
-        required: true,
-      },
-      date: {
-        type: Date,
-        required: false,
-        default: Date.now,
-      },
-    }),
-  ],
+  description: {
+    type: String,
+    required: true,
+  },
+  duration: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: false,
+    default: Date.now,
+  },
 });
 
 const userSchema = new Schema({

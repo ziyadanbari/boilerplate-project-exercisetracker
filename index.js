@@ -44,7 +44,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
   return res.json({
     username: fetchedUser.username,
     _id: fetchedUser._id,
-    duration,
+    duration: parseInt(duration),
     date: new Date(date || Date.now()).toDateString(),
     description,
   });
